@@ -77,7 +77,7 @@ struct vertex *create_vertex(struct source_type type) {
 
 }
 
-//遍历
+//遍历 返回下标
 int search_vertex(struct source_type type) {
 
 	int i = 0;
@@ -105,7 +105,7 @@ void add_vertex(struct source_type type) {
 
 }
 
-  //创建to节点 并添加from和to到集合
+  //添加一条边 a->b
 int add_edge(struct source_type from, struct source_type to) {
 
 	add_vertex(from);
@@ -120,7 +120,7 @@ int add_edge(struct source_type from, struct source_type to) {
 	v->next = create_vertex(to);
 
 }
-  //证实 i后面有j  
+  //i到j是是否存在一条边  无返回0 有返回1
 
 int verify_edge(struct source_type i, struct source_type j) {
 
@@ -190,12 +190,19 @@ void print_deadlock(void) {
 
 }
 //广度优先遍历  看是否存在回环
+/*
+	1 ---> 2
+	|     /
+	|   /
+	v /
+	3 ---> 4
+*/
 int DFS(int idx) {
-
+	//1.访问
 	struct vertex *ver = &tg->list[idx];
 	if (visited[idx] == 1) {
 
-		path[k++] = idx;
+		path[k++] = idx;  
 		print_deadlock();
 		deadlock = 1;
 		
@@ -204,13 +211,13 @@ int DFS(int idx) {
 
 	visited[idx] = 1;
 	path[k++] = idx;
-
+	//2.访问邻接表的边表
 	while (ver->next != NULL) {
 
-		DFS(search_vertex(ver->next->s));
-		k --;
+		DFS(search_vertex(ver->next->s)); //C:dfs(1)  dfs(2)  dfs(3)
+		k --;//回溯  （1 2 ）  (1)
 		
-		ver = ver->next;
+		ver = ver->next;  //取边表的下一个   1-2 -3   2-0 3-4 4-0
 
 	}
 
@@ -241,7 +248,7 @@ int search_for_cycle(int idx) {
 		k = 1;
 
 		DFS(search_vertex(ver->next->s));
-		ver = ver->next;
+		ver = ver->next; //使用不同的顶点 进行 dfs
 	}
 
 }
@@ -261,8 +268,7 @@ void check_dead_lock(void) {
 	}
 
 }
-
-
+//死锁的线程调用函数
 static void *thread_routine(void *args) {
 
 	while (1) {
@@ -274,7 +280,7 @@ static void *thread_routine(void *args) {
 
 }
 
-
+//提供的检测入口
 void start_check(void) {
 
 	tg = (struct task_graph*)malloc(sizeof(struct task_graph));
