@@ -32,39 +32,36 @@ pthread_mutex_unlock_t pthread_mutex_unlock_f;
 #define MAX		100
 
 enum Type {PROCESS, RESOURCE};
- //用于表示任务图中的一个节点（vertex）的相关信息。
-struct source_type {
-
-	uint64 id;
-	enum Type type;
-
-	uint64 lock_id;
-	int degress;
+// 资源信息 用于表示任务图中的一个节点（vertex）的相关信息。
+struct source_type 
+{
+	uint64 id;		// 拥有该资源的线程 id
+	enum Type type; // 顶点类型：线程 or 资源  a->b a线程申请b资源
+	uint64 lock_id; // 资源（锁） id
+	int degress;	// 资源的出度，该资源被多少顶点（线程）申请
 };
-  //表示任务图中的一个节点
-struct vertex {
-
-	struct source_type s;
-	struct vertex *next;
-
+// 表示任务图中的一个节点
+struct vertex
+{
+	struct source_type s; // 资源信息
+	struct vertex *next;  // 指向下一个顶点（邻接表）
 };
+
  //表示整个任务图。
-struct task_graph {
-//用于存储节点
-	struct vertex list[MAX];
-	int num;
- //用于存储互斥锁的信息。
-	struct source_type locklist[MAX];
-	int lockidx;
-
-	pthread_mutex_t mutex;
+struct task_graph
+{
+	struct vertex list[MAX];		  // 存储顶点
+	int num;						  // 顶点的数量
+	struct source_type locklist[MAX]; // 资源链表（锁）
+	int lockidx;					  // 资源（锁）的数量
 };
-
 struct task_graph *tg = NULL;
-int path[MAX+1]; //路劲
-int visited[MAX];//领接矩阵
-int k = 0; //路径长度
-int deadlock = 0;
+int path[MAX + 1]; // 路劲
+int visited[MAX];  // 领接矩阵
+int k = 0;		   // 路径长度
+int deadlock = 0;  
+
+// 图的基本操作：增删改查
  //堆创建一个节点
 struct vertex *create_vertex(struct source_type type) {
 
